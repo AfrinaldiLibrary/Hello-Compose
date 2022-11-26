@@ -1,6 +1,5 @@
 package com.afrinaldi.jetpackcoffee
 
-import SectionText
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,19 +9,23 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.afrinaldi.jetpackcoffee.model.Menu
-import com.afrinaldi.jetpackcoffee.model.dummyBestSellerMenu
-import com.afrinaldi.jetpackcoffee.model.dummyCategory
-import com.afrinaldi.jetpackcoffee.model.dummyMenu
+import com.afrinaldi.jetpackcoffee.model.*
 import com.afrinaldi.jetpackcoffee.ui.components.CategoryItem
+import com.afrinaldi.jetpackcoffee.ui.components.HomeSection
 import com.afrinaldi.jetpackcoffee.ui.components.MenuItem
 import com.afrinaldi.jetpackcoffee.ui.components.SearchBar
 import com.afrinaldi.jetpackcoffee.ui.theme.JetpackCoffeeTheme
@@ -33,24 +36,36 @@ class MainActivity : ComponentActivity() {
         setContent {
             JetpackCoffeeTheme {
                 // A surface container using the 'background' color from the theme
-                JetCoffeeApp()
+                JetpackCoffeeApp()
             }
         }
     }
 }
 
 @Composable
-fun JetCoffeeApp() {
-    Column(
-        modifier = Modifier.verticalScroll(rememberScrollState()),
-    ) {
-        Banner()
-        SectionText(title = stringResource(id = R.string.section_category))
-        CategoryRow()
-        SectionText(title = stringResource(id = R.string.section_favorite_menu))
-        MenuRow(listMenu = dummyMenu)
-        SectionText(title = stringResource(id = R.string.section_best_seller_menu))
-        MenuRow(listMenu = dummyBestSellerMenu)
+fun JetpackCoffeeApp() {
+    Scaffold(bottomBar = {
+        BottomBar()
+    }) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(innerPadding),
+        ) {
+            Banner()
+            HomeSection(
+                title = stringResource(R.string.section_category),
+                content = { CategoryRow() }
+            )
+            HomeSection(
+                title = stringResource(R.string.menu_favorite),
+                content = { MenuRow(dummyMenu) }
+            )
+            HomeSection(
+                title = stringResource(R.string.section_best_seller_menu),
+                content = { MenuRow(dummyBestSellerMenu) }
+            )
+        }
     }
 }
 
@@ -100,6 +115,49 @@ fun MenuRow(
     }
 }
 
+@Composable
+fun BottomBar(
+    modifier: Modifier = Modifier
+) {
+    BottomNavigation(
+        modifier = modifier,
+        backgroundColor = MaterialTheme.colors.background,
+        contentColor = MaterialTheme.colors.primary,
+    ) {
+        val navigationItems = listOf(
+            BottomBarItem(
+                title = stringResource(id = R.string.menu_home),
+                icon = Icons.Default.Home
+            ),
+            BottomBarItem(
+                title = stringResource(id = R.string.menu_favorite),
+                icon = Icons.Default.Favorite
+            ),
+            BottomBarItem(
+                title = stringResource(id = R.string.menu_profile),
+                icon = Icons.Default.AccountCircle
+            ),
+        )
+
+        navigationItems.map {
+            BottomNavigationItem(
+                icon = {
+                    Icon(
+                        imageVector = it.icon,
+                        contentDescription = it.title
+                    )
+                },
+                label = {
+                    Text(text = it.title)
+                },
+                selected = it.title == navigationItems[0].title,
+                unselectedContentColor = Color.LightGray,
+                onClick = {},
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true, device = Devices.PIXEL)
 @Composable
 fun BannerPreview() {
@@ -128,6 +186,6 @@ fun MenuRowPreview() {
 @Composable
 fun JetpackCoffeeAppPreview() {
     JetpackCoffeeTheme {
-        JetCoffeeApp()
+        JetpackCoffeeApp()
     }
 }
